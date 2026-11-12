@@ -1,0 +1,20 @@
+#pragma once
+#define IDI_APP 1
+#define IDD_SETTINGS 100
+#define IDD_HISTORY 101
+#define IDC_IDLE 1000
+#define IDC_FONT 1001
+#define IDC_PICKFONT 1002
+#define IDC_FONTSIZE 1003
+#define IDC_COLOR 1004
+#define IDC_ALPHA 1005
+#define IDC_CORNER 1006
+#define IDC_MONITOR 1007
+#define IDC_X 1008
+#define IDC_Y 1009
+#define IDC_PORT 1010
+#define IDC_TOKEN 1011
+#define IDC_AUTO 1012
+#define IDC_DAYS 1100
+#define IDC_SPIN 1101
+#define IDC_LIST 1102
