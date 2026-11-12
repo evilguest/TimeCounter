@@ -2,6 +2,12 @@ using System.Runtime.InteropServices;
 namespace TimeCounter;
 internal static class Native
 {
+    [DllImport("user32.dll")] internal static extern IntPtr CreatePopupMenu();
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] internal static extern bool AppendMenuW(IntPtr menu, uint flags, UIntPtr id, string? text);
+    [DllImport("user32.dll")] internal static extern bool DestroyMenu(IntPtr menu);
+    [DllImport("user32.dll")] internal static extern bool SetForegroundWindow(IntPtr window);
+    [DllImport("user32.dll")] internal static extern bool PostMessageW(IntPtr window, uint message, UIntPtr wparam, IntPtr lparam);
+    [DllImport("user32.dll")] internal static extern uint TrackPopupMenuEx(IntPtr menu, uint flags, int x, int y, IntPtr owner, IntPtr parameters);
     [StructLayout(LayoutKind.Sequential)] struct LastInput { public uint Size, Time; }
     [DllImport("user32.dll")] static extern bool GetLastInputInfo(ref LastInput info);
     [DllImport("wtsapi32.dll", SetLastError = true)] internal static extern bool WTSRegisterSessionNotification(IntPtr hwnd, int flags);
@@ -52,7 +58,7 @@ internal sealed class SessionWindow : Form
 }
 internal sealed class Overlay : Form
 {
-    string value = "00:00:00";
+    string value = "00:00";
     Settings settings = new();
     public Overlay()
     {
@@ -65,19 +71,28 @@ internal sealed class Overlay : Form
     { get { var p = base.CreateParams; p.ExStyle |= 0x80000 | 0x20 | 0x08000000 | 0x80; return p; } }
     protected override void WndProc(ref Message m)
     { if (m.Msg == 0x84) { m.Result = new IntPtr(-1); return; } if (m.Msg == 0x21) { m.Result = new IntPtr(3); return; } base.WndProc(ref m); }
+    internal static string FormatTime(double seconds)
+    {
+        var duration = TimeSpan.FromSeconds(Math.Max(0, Math.Floor(seconds)));
+        return $"{(int)duration.TotalHours:00}:{duration.Minutes:00}";
+    }
     public void UpdateDisplay(string text, Settings s)
     {
-        value = text; settings = s; Opacity = (100 - s.Transparency) / 100.0;
+        value = text; settings = s;
+        var opacity = (100 - s.Transparency) / 100.0;
+        if (Opacity != opacity) Opacity = opacity;
         using var font = new Font(s.FontName, s.FontSize, FontStyle.Regular, GraphicsUnit.Point);
         var size = TextRenderer.MeasureText(value, font);
         var screens = Screen.AllScreens;
         var area = screens[Math.Clamp(s.Monitor, 0, screens.Length - 1)].WorkingArea;
-        Size = new Size(Math.Min(area.Width, size.Width + 8), Math.Min(area.Height, size.Height + 8));
+        var desiredSize = new Size(Math.Min(area.Width, size.Width + 8), Math.Min(area.Height, size.Height + 8));
+        if (Size != desiredSize) Size = desiredSize;
         int x = s.Corner.StartsWith("Справа") ? area.Right - Width - s.OffsetX : area.Left + s.OffsetX;
         int y = s.Corner.EndsWith("снизу") ? area.Bottom - Height - s.OffsetY : area.Top + s.OffsetY;
-        Location = new Point(Math.Clamp(x, area.Left, Math.Max(area.Left, area.Right - Width)), Math.Clamp(y, area.Top, Math.Max(area.Top, area.Bottom - Height)));
+        var desiredLocation = new Point(Math.Clamp(x, area.Left, Math.Max(area.Left, area.Right - Width)), Math.Clamp(y, area.Top, Math.Max(area.Top, area.Bottom - Height)));
+        if (Location != desiredLocation) Location = desiredLocation;
         if (s.OverlayVisible && !Visible) Show(); else if (!s.OverlayVisible && Visible) Hide();
-        TopMost = true; Invalidate();
+        Invalidate();
     }
     protected override void OnPaint(PaintEventArgs e)
     {

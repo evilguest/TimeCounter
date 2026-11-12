@@ -43,7 +43,7 @@ foreach (string query in new[] { "?days=-1", "?days=3661", "?days=x", "?x=1" })
  if ((await client.GetAsync(url + query)).StatusCode != HttpStatusCode.BadRequest) throw new Exception(query);
 if ((await client.GetAsync($"http://127.0.0.1:{port}/other")).StatusCode != HttpStatusCode.NotFound) throw new Exception("route");
 UiChecks.Run();
-Console.WriteLine("PASS: UI and native window styles; idle, disconnect, midnight, DST, partition, persistence, clock rollback, HTTP authentication/routes/ranges");
+Console.WriteLine("PASS: real mouse clicks on every tray command, repeated hide/show, HH:mm format, UI and native window styles; idle, disconnect, midnight, DST, partition, persistence, clock rollback, HTTP authentication/routes/ranges");
 Directory.Delete(folder, true);
 
 

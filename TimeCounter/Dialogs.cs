@@ -50,7 +50,7 @@ internal sealed class HistoryDialog : Form
     readonly DataGridView grid = new() { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
     readonly System.Windows.Forms.Timer timer = new() { Interval = 5000 };
     readonly Func<List<DayRow>> get;
-    internal static string Duration(double seconds) { var t = TimeSpan.FromSeconds(Math.Floor(seconds)); return $"{(int)t.TotalHours:00}:{t.Minutes:00}:{t.Seconds:00}"; }
+    internal static string Duration(double seconds) => Overlay.FormatTime(seconds);
     public HistoryDialog(Func<List<DayRow>> get)
     {
         this.get = get; Text = "TimeCounter — история"; ClientSize = new Size(760, 530);
