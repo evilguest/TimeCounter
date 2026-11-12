@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+MSBuild_Logs/
+dist/
+.vs/
+*.user
